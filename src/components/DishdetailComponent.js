@@ -1,23 +1,9 @@
-import React, { Component } from "react";
+import React from "react";
 import { Card, CardImg,CardImgOverlay,CardText,CardBody,CardTitle } from "reactstrap";
-class Dishdetails extends Component {
 
-    
-    constructor(props) {
-        super(props);
-
-        console.log(props);
-        
-        // stores iproperties of this component
-        
-        this.state = {
-            selectedDishDetail: this.props.dsdetail
-        };
-
-
-    }
-    renderDish(dish) {
-        if(dish !== null) {
+    //functional component
+    function RenderDish({dish}) {
+        if(dish) {
             return (
                 <div className="col-12 col-md-5 m-1">
                 <Card>
@@ -37,11 +23,11 @@ class Dishdetails extends Component {
         }
     }
 
-    renderComments(comments) {
+    function RenderComments({comments}) {
         const commentl=  comments.map((com) => {
             return (
                 <div className="row">
-                    <ul className="success">
+                    <ul key={com.id} className="success">
                         <li>
                             ID: {com.id}
                         </li>
@@ -64,26 +50,22 @@ class Dishdetails extends Component {
             </div>
     }
 
-    render(){
-        const dish = this.props.dishdetail;
-
-        console.log(dish);
-        
-        if (dish == null) {
-            return (<div></div>);
+    
+    const DishDetail = (props) => {
+        if (props.dish !== undefined ) {
+            return (
+                <div>
+                <RenderDish dish={props.dish}></RenderDish>
+                <RenderComments comments={props.dish.comments}></RenderComments>
+                </div>
+            );
         }
-
-        const dishItem = this.renderDish(dish);
-        const dishComment = this.renderComments(dish.comments);
-
-        return (
-            <div className='row'>
-                {dishItem}
-                {dishComment}
-            </div>
-        )
+        else {
+            return (<div>No Dish Selected</div>);
+        }
     }
-}
+    
 
 
-export default Dishdetails;
+
+export default DishDetail;
