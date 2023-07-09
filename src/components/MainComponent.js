@@ -10,7 +10,7 @@ import { COMMENTS } from '../shared/Comments';
 import { LEADERS } from '../shared/Leaders';
 import { PROMOTIONS } from '../shared/Promotions';
 
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate,useParams } from 'react-router-dom';
 class Main extends Component {
 
   constructor(props) {
@@ -34,13 +34,23 @@ class Main extends Component {
           />
       );
     }
+
+    const DishWithId = () => {
+      var dishId =  useParams().dishId;
+      return(
+          <DishDetail dish={this.state.dishes.filter((dish) => dish.id === parseInt(dishId,10))[0]} 
+            comments={this.state.comments.filter((comment) => comment.dishId === parseInt(dishId,10))} />
+      );
+    };
+    
     return (
       <div>
         <Header>
         </Header>
           <Routes>
             <Route path="/home" element={<HomePage />}  />
-            <Route path='/menu' exact element={() => <Menu dishes={this.dishes} />} />  
+            <Route path='/menu' exact element={<Menu dishes={this.state.dishes} />} />
+            <Route path='/menu/:dishId' element={<DishWithId></DishWithId>} />
             <Route exact path='/contactus' element={<Contact></Contact>}></Route> 
             <Route path="/" element={<Navigate replace to="/home" />} />
           </Routes>
