@@ -1,85 +1,104 @@
 import React, { Component } from "react";
-import { Card, CardImg,CardImgOverlay,CardText,CardBody,CardTitle,Breadcrumb,BreadcrumbItem,Form,FormGroup, Col,Label,Input
-    ,Button,FormFeedback } from "reactstrap";
+import { Card, CardImg,CardImgOverlay,CardText,CardBody,CardTitle,Breadcrumb,BreadcrumbItem, 
+    Col,Label,Input
+    ,Button } from "reactstrap";
 import { json, Link } from 'react-router-dom';
+import { Form, Field } from 'react-final-form'
+import Styles from "../Styles";
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
+const onSubmit = async values => {
+  await sleep(300)
+  window.alert(JSON.stringify(values, 0, 2))
+}
+const required = value => (value ? undefined : 'Required')
+const mustBeNumber = value => (isNaN(value) ? 'Must be a number' : undefined)
+const minValue = min => value =>
+  isNaN(value) || value >= min ? undefined : `Should be greater than ${min}`
+const composeValidators = (...validators) => value =>
+  validators.reduce((error, validator) => error || validator(value), undefined)
+const regex = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+const emailValidate = value => regex.test(value) === false ? 'Email not valid' : ''
+
+const FeedbackForm = () => (
+  <Styles>
+    <Form
+      onSubmit={onSubmit}
+      initialValues={{}}
+      render={({ handleSubmit, form, submitting, pristine, values }) => (
+        <form onSubmit={handleSubmit}>
+          <Field name="firstname" validate={required}>
+                {({ input,meta }) => (
+                    <div>
+                        <label>First Name</label>
+                        <input {...input} type="text" placeholder="First Name"></input>
+                        {meta.error && meta.touched && <span>{meta.error}</span>}
+                    </div>
+                )}
+            </Field>
+            <Field name="lastname" validate={required}>
+                {({ input,meta }) => (
+                    <div>
+                        <label>Last Name</label>
+                        <input {...input} type="text" placeholder="Last Name"></input>
+                        {meta.error && meta.touched && <span>{meta.error}</span>}
+                    </div>
+                )}
+            </Field>
+            <Field name="mobile" validate={composeValidators(required, mustBeNumber,minValue(10))}>
+                {({ input,meta }) => (
+                    <div>
+                        <label>Mobile</label>
+                        <input {...input} type="tel" placeholder="Mobile"></input>
+                        {meta.error && meta.touched && <span>{meta.error}</span>}
+                    </div>
+                )}
+            </Field>
+            <Field name="email" validate={composeValidators(required, emailValidate)}>
+                {({ input,meta }) => (
+                    <div>
+                        <label>email</label>
+                        <input {...input} type="tel" placeholder="email"></input>
+                        {meta.error && meta.touched && <span>{meta.error}</span>}
+                    </div>
+                )}
+            </Field>
+          <div>
+            <label>May We contact you</label>
+            <Field name="contactu" component="input" type="checkbox" />
+          </div>
+          <div>
+            <label>Notes</label>
+            <Field name="notes" component="textarea" placeholder="Notes" />
+          </div>
+          <div className="buttons">
+            <button type="submit" disabled={submitting || pristine}>
+              Submit
+            </button>
+            <button
+              type="button"
+              onClick={form.reset}
+              disabled={submitting || pristine}
+            >
+              Reset
+            </button>
+          </div>
+          <pre>{JSON.stringify(values, 0, 2)}</pre>
+        </form>
+      )}
+    />
+  </Styles>
+)
 
 class Contact extends Component {
     constructor (props) {
         super(props);
-
-        this.state = {
-            firstname : '',
-            lastname : '',
-            telnum : '',
-            email : '',
-            agree : '',
-            contactType : 'Tel.',
-            message : '',
-            touched : {
-                firstname: false,
-                lastname : false,
-                telnum : false,
-                email : false,
-            }
-        }
-
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleInputchange = this.handleInputchange.bind(this);
-        this.handleBlur = this.handleBlur.bind(this);
-
-
+       
     }
 
-    handleInputchange(event) {
-        const target = event.target;
-        const value = target.type === 'checkbox' ? target.checked : target.value;
-        const name = target.name;
-        this.setState({
-            [name] : value
-        })
-    }
-
-    handleSubmit(event) {
-        console.log('Current State: '+JSON.stringify(this.state));
-        alert('Current State: '+JSON.stringify(this.state));
-        event.preventDefault();
-    }
-
-    handleBlur = (field) => (evt) => {
-        this.setState({
-            touched : { ...this.state.touched, [field] : true}
-        })
-    }
-
-    validate(firstname, lastname, email, telnum) {
-        const errors = {
-            firstname : '',
-            lastname : '',
-            telnum : '',
-            email : '',
-        }
-
-        if(this.state.touched.firstname && firstname.length < 3)
-            errors.firstname = 'First name shoud be greater than 3 char';
-        else if(this.state.touched.firstname && firstname.length > 7)
-            errors.firstname = 'First name shoud be greater than 7 char';
-
-        if(this.state.touched.lastname && lastname.length < 3)
-            errors.lastname = 'Last name shoud be greater than 3 char';
-        else if(this.state.touched.lastname && lastname.length > 7)
-            errors.lastname = 'Last name shoud be greater than 7 char';
-        const reg = /^\d+$/; 
-        if(this.state.touched.telnum && !reg.test(telnum))
-            errors.telnum = 'Tel. Number should contain only numbers';
-        if(this.state.touched.email && email.split('').filter(x => x === '@').length !== 1)
-            errors.email = 'Email should contain a @';
-        return errors;
-
-    }
+    
 
     render() {
-        const errors = this.validate(this.state.firstname, this.state.lastname, this.state.telnum, this.state.email);
         return (
             <div className="container">
                 <div className="row">
@@ -123,103 +142,7 @@ class Contact extends Component {
                         <h3>Send Us your feedback</h3>
                     </div>
                     <div className="col-12 col-md-9">
-                        <Form onSubmit={this.handleSubmit}>
-                            <FormGroup row>
-                                <Label for="firstname" md={2}>First Name</Label>
-                                <Col md={10}>
-                                    <Input type="text" id="firstname" name="firstname" 
-                                    placeholder="Firstname"
-                                    onBlur={this.handleBlur('firstname')}
-                                    onChange={this.handleInputchange} 
-                                    value={this.state.firstname}
-                                    valid={errors.firstname === ''}
-                                    invalid={errors.firstname !== ''}
-
-                                    ></Input>
-                                    <FormFeedback>{errors.firstname}</FormFeedback>
-                                </Col>
-                            </FormGroup>
-                            <FormGroup row>
-                                <Label for="lastname" md={2}>First Name</Label>
-                                <Col md={10}>
-                                    <Input type="text" id="lastname" name="lastname" 
-                                    placeholder="lastname"
-                                        value={this.state.lastname} 
-                                        onBlur={this.handleBlur('lastname')}
-                                        onChange={this.handleInputchange}
-                                        valid={errors.lastname === ''}
-                                        invalid={errors.lastname !== ''}></Input>
-                                    <FormFeedback>{errors.lastname}</FormFeedback>
-                                    
-                                </Col>
-                            </FormGroup>
-                            <FormGroup row>
-                                <Label for="telnum" md={2}>telnum</Label>
-                                <Col md={10}>
-                                    <Input type="tel" id="telnum" name="telnum" 
-                                        placeholder="telnum"
-                                        onBlur={this.handleBlur('telnum')}
-                                        value={this.state.telnum} 
-                                        onChange={this.handleInputchange}
-                                        valid={errors.telnum === ''}
-                                        invalid={errors.telnum !== ''}
-                                        ></Input>
-                                    <FormFeedback>{errors.telnum}</FormFeedback>
-                                    
-                                </Col>
-                            </FormGroup>
-                            <FormGroup row>
-                                <Label for="email" md={2}>Email</Label>
-                                <Col md={10}>
-                                    <Input type="email" id="email" name="email" 
-                                        placeholder="email"
-                                        onBlur={this.handleBlur('email')}
-                                        value={this.state.email} 
-                                        onChange={this.handleInputchange}
-                                        valid={errors.email === ''}
-                                        invalid={errors.email !== ''}></Input>
-                                    <FormFeedback>{errors.email}</FormFeedback>
-                                    
-                                </Col>
-                            </FormGroup>
-                            <FormGroup row>
-                                <Col md={{size: 6, offset: 2}}>
-                                    <FormGroup check>
-                                        <Label check>
-                                            <Input type="checkbox"
-                                                name="agree"
-                                                checked={this.state.agree} onChange={this.handleInputchange}
-                                                /> 
-                                            <strong>May we contact you?</strong>
-                                        </Label>
-                                    </FormGroup>
-                                </Col>
-                                <Col md={{size: 3, offset: 1}}>
-                                    <Input type="select" name="contactType"
-                                            value={this.state.contactType} onChange={this.handleInputchange}
-                                            >
-                                        <option>Tel.</option>
-                                        <option>Email</option>
-                                    </Input>
-                                </Col>
-                            </FormGroup>
-                            <FormGroup row>
-                                <Label htmlFor="message" md={2}>Your Feedback</Label>
-                                <Col md={10}>
-                                    <Input type="textarea" id="message" name="message"
-                                        rows="12"
-                                        value={this.state.message} onChange={this.handleInputchange}
-                                        ></Input>
-                                </Col>
-                            </FormGroup>
-                            <FormGroup row>
-                                <Col md={{size: 10, offset: 2}}>
-                                    <Button type="submit" color="primary">
-                                        Send Feedback
-                                    </Button>
-                                </Col>
-                            </FormGroup>
-                        </Form>
+                    <FeedbackForm></FeedbackForm>
                     </div>
                 </div>
             </div>
