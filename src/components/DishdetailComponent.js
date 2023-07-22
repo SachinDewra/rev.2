@@ -5,7 +5,7 @@ import { Card, CardImg, CardText, CardBody,
 import { json,Link } from 'react-router-dom';
 import { Form, Field } from 'react-final-form'
 import Styles from "../Styles";
-
+import { Loading } from "./LoadingComponent";
 class CommentForm extends Component {
     constructor(props) {
         console.log(props);
@@ -150,8 +150,25 @@ function RenderComments({comments, addComment,dishId}) {
 
 
 const DishDetail = (props) => {
-    console.log(props);
-    if (props.dish !== undefined ) {
+    if(props.isLoading) {
+        return (
+            <div className="container">
+                <div className="row">
+                    <Loading></Loading>
+                </div>
+            </div>
+        )
+    }
+    else if(props.errMess) {
+        return (
+            <div className="container">
+                <div className="row">
+                    <h4>{props.errMess}</h4>
+                </div>
+            </div>
+        )
+    }
+    else if (props.dish !== undefined ) {
         return (
             <div className="container">
             <div className="row">
