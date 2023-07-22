@@ -6,14 +6,6 @@ import { json,Link } from 'react-router-dom';
 import { Form, Field } from 'react-final-form'
 import Styles from "../Styles";
 
-const required = value => (value ? undefined : 'Required')
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
-
-const onSubmit = async values => {
-  await sleep(300)
-  window.alert(JSON.stringify(values, 0, 2))
-}
-
 class CommentForm extends Component {
     constructor(props) {
         console.log(props);
@@ -32,6 +24,14 @@ class CommentForm extends Component {
 
     
     render() {
+        const required = value => (value ? undefined : 'Required')
+        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
+
+        const onSubmit = async values => {
+            await sleep(300)
+            this.props.addComment(this.props.dishId, values.rating,
+                 values.author,values.comment)
+        }
         return (
             <div className="row">
                 <Button outline onClick={this.commenttoggleModal}>
@@ -121,7 +121,7 @@ function RenderDish({dish}) {
     }
 }
 
-function RenderComments({comments}) {
+function RenderComments({comments, addComment,dishId}) {
     const commentl=  comments.map((com) => {
         return (
             <div className="row">
@@ -144,7 +144,7 @@ function RenderComments({comments}) {
             <div className="row">
                 {commentl}
             </div>
-            <CommentForm comments={comments}></CommentForm>
+            <CommentForm comments={comments} dishId={dishId} addComment={addComment} ></CommentForm>
         </div>
 }
 
@@ -170,7 +170,8 @@ const DishDetail = (props) => {
                     <RenderDish dish={props.dish} />
                 </div>
                 <div className="col-12 col-md-5 m-1">
-                    <RenderComments comments={props.comments} />
+                    <RenderComments comments={props.comments}
+                        addComment={props.addComment} dishId={props.dish.id} />
                 </div>
             </div>
             </div>
