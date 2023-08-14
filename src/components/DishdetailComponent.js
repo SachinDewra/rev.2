@@ -6,6 +6,9 @@ import { json,Link } from 'react-router-dom';
 import { Form, Field } from 'react-final-form'
 import Styles from "../Styles";
 import { Loading } from "./LoadingComponent";
+import { baseUrl } from "../shared/baseUrl";
+
+
 class CommentForm extends Component {
     constructor(props) {
         console.log(props);
@@ -29,7 +32,7 @@ class CommentForm extends Component {
 
         const onSubmit = async values => {
             await sleep(300)
-            this.props.addComment(this.props.dishId, values.rating,
+            this.props.postComment(this.props.dishId, values.rating,
                  values.author,values.comment)
         }
         return (
@@ -105,7 +108,7 @@ function RenderDish({dish}) {
         return (
             <div className="col-12 col-md-5 m-1">
             <Card>
-                <CardImg width="100%" src={dish.image} alt={dish.name}></CardImg>
+                <CardImg width="100%" src={baseUrl+dish.image} alt={dish.name}></CardImg>
                 <CardBody>
                     <CardTitle heading>{dish.name}</CardTitle>
                     <CardText>{dish.description}</CardText>
@@ -121,7 +124,7 @@ function RenderDish({dish}) {
     }
 }
 
-function RenderComments({comments, addComment,dishId}) {
+function RenderComments({comments, postComment,dishId}) {
     const commentl=  comments.map((com) => {
         return (
             <div className="row">
@@ -144,7 +147,7 @@ function RenderComments({comments, addComment,dishId}) {
             <div className="row">
                 {commentl}
             </div>
-            <CommentForm comments={comments} dishId={dishId} addComment={addComment} ></CommentForm>
+            <CommentForm comments={comments} dishId={dishId} postComment={postComment} ></CommentForm>
         </div>
 }
 
@@ -188,7 +191,7 @@ const DishDetail = (props) => {
                 </div>
                 <div className="col-12 col-md-5 m-1">
                     <RenderComments comments={props.comments}
-                        addComment={props.addComment} dishId={props.dish.id} />
+                        postComment={props.postComment} dishId={props.dish.id} />
                 </div>
             </div>
             </div>
